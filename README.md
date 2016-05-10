@@ -41,7 +41,12 @@ or drag the files manually then import it
     [self.view addSubview:postEditPage.view];
     
 for more customizations properties see ```CAPostEditorViewController.h```
-  
+
+## TODO:
+- Attachments support
+
+
+
 ## Author
 
 [Mokhlas Hussein (iMokhles)](https://twitter.com/imokhles), [mokhleshussien@gmail.com](mailto:mokhleshussien@aol.com)
