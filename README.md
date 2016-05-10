@@ -42,7 +42,7 @@ or drag the files manually then import it
     
 for more customizations properties see ```CAPostEditorViewController.h```
 
-## TODO:
+## TODO
 - Attachments support
 
 
@@ -52,7 +52,7 @@ for more customizations properties see ```CAPostEditorViewController.h```
 [Mokhlas Hussein (iMokhles)](https://twitter.com/imokhles), [mokhleshussien@gmail.com](mailto:mokhleshussien@aol.com)
 
 
-### old code before refactoring
+### old code before rewriting
 [MFComposeViewController (mfarhand)](https://github.com/mfarhand/MFComposeViewController)
 
 ## License
