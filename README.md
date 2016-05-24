@@ -6,8 +6,19 @@
 
 simple compose view controller with a lot of customizations properties
 
+## NO Attachment
 <p align="center">
   <img width="320" height="480" src="screenshot.png"/>
+</p>
+
+## Audio Attachment
+<p align="center">
+  <img width="320" height="480" src="screenshot2.png"/>
+</p>
+
+## Data Attachment
+<p align="center">
+  <img width="320" height="480" src="screenshot3.png"/>
 </p>
 
 ## Usage
@@ -29,6 +40,7 @@ or drag the files manually then import it
     postEditPage.postText = TEXT_TO_EDIT;
     postEditPage.isEditingMode = YES;
     postEditPage.textLimit = 180;
+    postEditPage.attachmentURL = [NSURL URLWithString:@""]; // attachment URL 
     postEditPage.heightConstraint = 300; 
     [postEditPage setBackButtonBlock:^(CAPostEditorViewController *postEditorViewController, UIButton *backButton, NSString *text) {
         NSLog(@"******* %@", text);
@@ -43,7 +55,7 @@ or drag the files manually then import it
 for more customizations properties see ```CAPostEditorViewController.h```
 
 ## TODO
-- Attachments support
+- [x] Attachments support
 
 
 

@@ -7,10 +7,32 @@
 //
 
 #import "CAPostEditorViewController.h"
+#import <AVFoundation/AVFoundation.h>
+#import <MobileCoreServices/MobileCoreServices.h>
 
 #define SCREEN_WIDTH_EDITOR (IOS_VERSION_LOWER_THAN_8 ? (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation) ? [[UIScreen mainScreen] bounds].size.width : [[UIScreen mainScreen] bounds].size.height) : [[UIScreen mainScreen] bounds].size.width)
 #define SCREEN_HEIGHT_EDITOR (IOS_VERSION_LOWER_THAN_8 ? (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation) ? [[UIScreen mainScreen] bounds].size.height : [[UIScreen mainScreen] bounds].size.width) : [[UIScreen mainScreen] bounds].size.height)
 #define IOS_VERSION_LOWER_THAN_8 (NSFoundationVersionNumber <= NSFoundationVersionNumber_iOS_7_1)
+
+@interface NSURLConnection (Background)
++ (void)sendSynchronousRequest:(NSURLRequest *)request inBackgroundWithCompletionHandler:(void (^)(NSURLResponse*, NSData*, NSError*))handler;
+@end
+@implementation NSURLConnection (Background)
++ (void)sendSynchronousRequest:(NSURLRequest *)request
+inBackgroundWithCompletionHandler:(void (^)(NSURLResponse*, NSData*, NSError*))handler {
+    
+    dispatch_async(dispatch_queue_create
+                   ("AsynchRequest", NULL), ^{
+                       NSURLResponse *response = nil;
+                       NSError *error = nil;
+                       NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
+                       
+                       dispatch_sync(dispatch_get_main_queue(), ^{
+                           handler(response,data,error);
+                       });
+                   });
+}
+@end
 
 @interface CAPostEditorViewController () <UITextViewDelegate>
 
@@ -41,6 +63,80 @@
         [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
     }
     
+    if (self.attachmentURL != nil) {
+        [self.mainEditorView.attachmentsView setHidden:NO];
+        self.mainEditorView.attachmentsConstraint.constant = 112;
+        [self.mainEditorView.mainView updateConstraints];
+        UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        activityIndicator.frame = self.mainEditorView.attachmentsImageView.bounds;
+        [activityIndicator startAnimating];
+        [self.mainEditorView.attachmentsImageView addSubview:activityIndicator];
+        self.mainEditorView.attachmentsImageView.userInteractionEnabled = NO;
+        
+        if (![self.attachmentURL  isFileURL]) {
+            [NSURLConnection sendSynchronousRequest:[NSURLRequest requestWithURL:self.attachmentURL] inBackgroundWithCompletionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                NSString *mime = [response MIMEType];
+                if ([mime containsString:@"video"]) {
+                    NSLog(@"Video");
+                    AVURLAsset *asset1 = [[AVURLAsset alloc] initWithURL:self.attachmentURL options:nil];
+                    AVAssetImageGenerator *generate1 = [[AVAssetImageGenerator alloc] initWithAsset:asset1];
+                    generate1.appliesPreferredTrackTransform = YES;
+                    NSError *err = NULL;
+                    CMTime time = CMTimeMake(1, 2);
+                    CGImageRef oneRef = [generate1 copyCGImageAtTime:time actualTime:NULL error:&err];
+                    UIImage *one = [[UIImage alloc] initWithCGImage:oneRef];
+                    [self.mainEditorView.attachmentsView setBackgroundColor:[UIColor clearColor]];
+                    [self.mainEditorView.attachmentsImageView setImage:one];
+                } else if ([mime containsString:@"audio"]) {
+                    NSLog(@"Audio");
+                    [self.mainEditorView.attachmentsView setBackgroundColor:[UIColor clearColor]];
+                    [self.mainEditorView.attachmentsImageView setImage:[UIImage imageNamed:@"Audio-icon"]];
+                } else if ([mime containsString:@"image"]) {
+                    NSLog(@"Image");
+                    [self.mainEditorView.attachmentsView setBackgroundColor:[UIColor clearColor]];
+                    [self.mainEditorView.attachmentsImageView setImage:[UIImage imageWithData:data]];
+                } else {
+                    [self.mainEditorView.attachmentsView setBackgroundColor:[UIColor clearColor]];
+                    [self.mainEditorView.attachmentsImageView setImage:[UIImage imageNamed:@"attachment_data.jpg"]];
+                }
+                [activityIndicator stopAnimating];
+                [activityIndicator removeFromSuperview];
+                self.mainEditorView.attachmentsImageView.userInteractionEnabled = YES;
+            }];
+        } else {
+            NSString *mime = [self MIMEForFileURL:self.attachmentURL];
+            if ([mime containsString:@"video"]) {
+                NSLog(@"Video");
+                AVURLAsset *asset1 = [[AVURLAsset alloc] initWithURL:self.attachmentURL options:nil];
+                AVAssetImageGenerator *generate1 = [[AVAssetImageGenerator alloc] initWithAsset:asset1];
+                generate1.appliesPreferredTrackTransform = YES;
+                NSError *err = NULL;
+                CMTime time = CMTimeMake(1, 2);
+                CGImageRef oneRef = [generate1 copyCGImageAtTime:time actualTime:NULL error:&err];
+                UIImage *one = [[UIImage alloc] initWithCGImage:oneRef];
+                [self.mainEditorView.attachmentsView setBackgroundColor:[UIColor clearColor]];
+                [self.mainEditorView.attachmentsImageView setImage:one];
+            } else if ([mime containsString:@"audio"]) {
+                NSLog(@"Audio");
+                [self.mainEditorView.attachmentsView setBackgroundColor:[UIColor clearColor]];
+                [self.mainEditorView.attachmentsImageView setImage:[UIImage imageNamed:@"Audio-icon"]];
+            } else if ([mime containsString:@"image"]) {
+                NSLog(@"Image");
+                [self.mainEditorView.attachmentsView setBackgroundColor:[UIColor clearColor]];
+                [self.mainEditorView.attachmentsImageView setImage:[UIImage imageWithData:[NSData dataWithContentsOfURL:self.attachmentURL]]];
+            } else {
+                [self.mainEditorView.attachmentsView setBackgroundColor:[UIColor clearColor]];
+                [self.mainEditorView.attachmentsImageView setImage:[UIImage imageNamed:@"attachment_data.jpg"]];
+            }
+            [activityIndicator stopAnimating];
+            [activityIndicator removeFromSuperview];
+            self.mainEditorView.attachmentsImageView.userInteractionEnabled = YES;
+        }
+    } else if (self.attachmentURL == nil) {
+        [self.mainEditorView.attachmentsView setHidden:YES];
+        self.mainEditorView.attachmentsConstraint.constant = 8;
+        [self.mainEditorView.mainView updateConstraints];
+    }
     // update top constrait
     self.mainEditorView.topConstraint.constant = 30;
     self.mainEditorView.heightConstraint.constant = 230;
@@ -134,10 +230,10 @@
     
     // blur
     if (self.blurEffect) {
-        UIVisualEffect *blurEffect;
-        blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+        UIBlurEffect *blurEffect1;
+        blurEffect1 = [UIBlurEffect effectWithStyle:self.blurEffect];
         UIVisualEffectView *visualEffectView;
-        visualEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+        visualEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect1];
         visualEffectView.frame = _mainEditorView.backgroundView.bounds;
         [_mainEditorView.backgroundView insertSubview:visualEffectView atIndex:0];
     }
@@ -286,4 +382,12 @@
     }
     _mainEditorView.textCounterLabel.text=[NSString stringWithFormat:@"%li",lengthLimit-len];
 }
+
+- (NSString *)MIMEForFileURL:(NSURL *)url
+{
+    CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)url.pathExtension, NULL);
+    CFStringRef mimeType = UTTypeCopyPreferredTagWithClass (UTI, kUTTagClassMIMEType);
+    return (NSString *)CFBridgingRelease(mimeType) ;
+}
+
 @end

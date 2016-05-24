@@ -16,6 +16,9 @@
 - (void)drawRect:(CGRect)rect {
     [self.mainView setClipsToBounds:YES];
     [[self.mainView layer]setCornerRadius:6];
+    
+    [self.attachmentsView setClipsToBounds:YES];
+    [[self.attachmentsView layer]setCornerRadius:8];
 }
 
 - (IBAction)postButtonTapped:(id)sender {

@@ -21,6 +21,9 @@
 @property (strong, nonatomic) IBOutlet UILabel *textCounterLabel;
 @property (strong, nonatomic) IBOutlet UIView *mainView;
 @property (strong, nonatomic) IBOutlet UIImageView *backgroundImageView;
+@property (strong, nonatomic) IBOutlet UIView *attachmentsView;
+@property (strong, nonatomic) IBOutlet UIImageView *attachmentsImageView;
+@property (strong, nonatomic) IBOutlet NSLayoutConstraint *attachmentsConstraint;
 
 /**
  actions block

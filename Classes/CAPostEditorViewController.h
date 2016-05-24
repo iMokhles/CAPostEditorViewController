@@ -41,7 +41,7 @@
 @property (nonatomic, strong) UIColor *counterColor;
 
 // main background blur effect [ nil by default ]
-@property (nonatomic, strong) UIVisualEffect *blurEffect;
+@property (nonatomic, assign) UIBlurEffectStyle blurEffect;
 
 // main background color [ gray by default with alpha = 0.9]
 @property (nonatomic, strong) UIColor *mainBackgroundColor;
@@ -70,6 +70,10 @@
 
 // text maxi length ( 140 by default twitter drugs -.-" )
 @property (nonatomic, assign) NSInteger textLimit;
+
+// attachements url ( if nil attachments view won't be visible if not nil will create thumbnail for it)
+@property (nonatomic, strong) NSURL *attachmentURL;
+
 
 // actions blocks
 @property (nonatomic, copy) void (^postButtonBlock)(CAPostEditorViewController * editorViewController, UIButton *postButton, NSString *text);
