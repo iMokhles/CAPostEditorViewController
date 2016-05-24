@@ -8,17 +8,17 @@ simple compose view controller with a lot of customizations properties
 
 ## NO Attachment
 <p align="center">
-  <img width="320" height="480" src="screenshot.png"/>
+  <img width="320" height="550" src="screenshot.png"/>
 </p>
 
 ## Audio Attachment
 <p align="center">
-  <img width="320" height="480" src="screenshot2.png"/>
+  <img width="320" height="550" src="screenshot2.png"/>
 </p>
 
 ## Data Attachment
 <p align="center">
-  <img width="320" height="480" src="screenshot3.png"/>
+  <img width="320" height="550" src="screenshot3.png"/>
 </p>
 
 ## Usage
